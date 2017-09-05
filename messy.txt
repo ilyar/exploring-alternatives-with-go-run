@@ -1,0 +1,5 @@
+BenchmarkUnmarshal	  100000	     14808 ns/op	    1408 B/op	      25 allocs/op
+BenchmarkUnmarshal	  100000	     14642 ns/op	    1408 B/op	      25 allocs/op
+BenchmarkUnmarshal	  100000	     14613 ns/op	    1408 B/op	      25 allocs/op
+BenchmarkUnmarshal	  100000	     14608 ns/op	    1408 B/op	      25 allocs/op
+BenchmarkUnmarshal	  100000	     14636 ns/op	    1408 B/op	      25 allocs/op

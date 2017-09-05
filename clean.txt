@@ -1,0 +1,5 @@
+BenchmarkUnmarshal	  100000	     11748 ns/op	    1248 B/op	      19 allocs/op
+BenchmarkUnmarshal	  100000	     11659 ns/op	    1248 B/op	      19 allocs/op
+BenchmarkUnmarshal	  200000	     11787 ns/op	    1248 B/op	      19 allocs/op
+BenchmarkUnmarshal	  200000	     11807 ns/op	    1248 B/op	      19 allocs/op
+BenchmarkUnmarshal	  100000	     11650 ns/op	    1248 B/op	      19 allocs/op
