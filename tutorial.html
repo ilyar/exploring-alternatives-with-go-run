@@ -1,0 +1,111 @@
+{{version}}
+<!--
+{{removeAll .SiteDir}}
+{{mkdirAll .SiteDir}}
+{{copy "info.toml" .SiteDir "info.toml"}}
+
+{{removeAll .BuildDir}}
+{{mkdirAll .BuildDir}}
+
+{{cd .BuildDir}}
+{{runNoOutput "git" "init"}}
+{{runNoOutput "git checkout -b" (.Now.Format "2006-01-02")}}
+{{copy "build-readme.md" .BuildDir "readme.md"}}
+
+-->
+<p>There’s more than one way to do most things. At some point you need to choose which way to do that thing, which means you need to compare the alternatives. At the same time, you can’t spend lots of time building infrastructure to do the comparison.</p>
+
+<p>Quickly explore many alternatives by:</p>
+
+<ol>
+	<li>Putting most of your code in <code>main.go</code></li>
+	<li>Putting each alternative in a separate file (e.g., <code>alternative1.go</code>)</li>
+	<li>Running each alternative with <code>go run main.go alternative1.go</code></li>
+	<li>Comparing the results</li>
+</ol>
+
+<p>I used this method to survey <a href="/10-to-instrument/">10 packages to instrument your Go application</a> and to build examples for my upcoming <a href="/guide-to-json/">Pocket Gophers’ Guide to JSON</a>. I will further explain the method with an example from that guide.</p>
+
+<h2>The Example</h2>
+
+<p>I have a JSON array with heterogeneous contents:</p>
+
+{{copy "example.json" .BuildDir "example.json"}}
+{{commit "example JSON"}}
+{{file "example.json"}}
+
+<p>And want to unmarshal it into an slice of <code>Item</code>s:</p>
+
+<pre><code>type Item struct {
+	Name     string
+	Quantity int
+}
+</code></pre>
+
+<p>Each alternative needs to correctly unmarshal the JSON and will be compared using Go’s benchmarking tools.</p>
+
+<p>This is a good example because it demonstrates the difficult part (unmarshaling from a heterogenous JSON array into a struct) without overwhelming the reader with unnecessary detail. I also know two ways to unmarshal the JSON.</p>
+
+<p>When you are doing this yourself, make sure your test cases are as realistic as possible. This is important as your experience implementing the alternatives along with whatever performance criteria you use will influence your choice.</p>
+
+<p>The code for this example can be gotten with:</p>
+
+<pre><code>go get -d pocketgophers.com/exploring-alternatives-with-go-run
+</code></pre>
+
+<h2>Writing <code>main.go</code></h2>
+
+<p>Most of your code should be in <code>main.go</code>. It should have everything that is not alternative specific.</p>
+
+<ul>
+	<li>Read example JSON from <code>example.json</code></li>
+	<li>Confirm that unmarshaling the JSON produces the desired data structure</li>
+	<li>Benchmark the alternative, with results usable by <a href="https://godoc.org/golang.org/x/perf/cmd/benchstat">benchstat</a></li>
+</ul>
+
+{{copy "main.go" .BuildDir "main.go"}}
+{{commit "main.go"}}
+{{file "main.go"}}
+
+<p>This code compiles, but does not run without error:</p>
+
+{{run "go run main.go"}}
+
+<p>Your <code>main.go</code> should either not compile without one of the alternatives or error at runtime. I will usually create a skeleton alternative that implements just enough for it and <code>main.go</code> to compile. This skeleton gives a place for documenting what an alternative is expected to do along with giving a starting place for implementing a new alternative.</p>
+
+<p>In this case, my alternatives just need to implement <code>func (item *Item) UnmarshalJSON(b []byte) error</code>, so there is no compile-time check to make that fail. If all the alternatives didn’t use the same <code>unmarshal</code> method, I would move that function to the alternatives.</p>
+
+<h2>Implementing the alternatives</h2>
+
+<p>The first alternative unmarshals into <code>[]interface{}</code> and then assigns the values into the correct struct fields, performing the required type assertions:</p>
+
+{{copy "messy.go" .BuildDir "messy.go"}}
+{{commit "messy.go"}}
+{{file "messy.go"}}
+
+<p>The second alternative builds an <code>[]interface{}</code> with pointers to the struct fields. This allows <code>encoding/json</code> to handle the type checking.</p>
+
+{{copy "clean.go" .BuildDir "clean.go"}}
+{{commit "clean.go"}}
+{{file "clean.go"}}
+
+<h2>Running the alternatives</h2>
+
+<p>Run the alternatives is straight-forward. Here I also save the benchmark results so I can use them with <a href="https://godoc.org/golang.org/x/perf/cmd/benchstat">benchstat</a> later.</p>
+
+{{run "go run main.go messy.go | tee messy.txt"}}
+{{run "go run main.go clean.go | tee clean.txt"}}
+
+<h2>Comparing the results</h2>
+
+<p>First, the output from running <code>benchstat -html messy.txt clean.txt</code>:</p>
+
+{{benchstat "messy.txt" "clean.txt"}}
+
+<p>Benchmarks aren’t the only result. We also have the implementations to compare. Make sure and look closely at the code. In this case, we can see that <code>clean.go</code> is shorter, automatically handles type checking/assertions, and requires fewer changes should fields be added to <code>Item</code>.</p>
+
+<p>If you are comparing packages, pay attention to the APIs. Does the API fit what you needed to do? Or are you fighting it? Which alternative is easier to read?</p>
+
+<!--
+{{commit "initial"}}
+-->

@@ -1,0 +1,3 @@
+Title = "Exploring alternatives with <code>go run</code>"
+Versions = ["go1.9"]
+Topics = ["build", "prototyping"]

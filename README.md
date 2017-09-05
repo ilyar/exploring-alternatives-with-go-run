@@ -1,25 +1,5 @@
-Example code for https://pocketgophers.com/exploring-alternatives-with-go-run/
+This is the source used to build https://pocketgophers.com/exploring-alternatives-with-go-run/
 
-Get the code with:
+The code associated with a specific build is in a dated branch, the latest version of which is the default branch.
 
-```
-go get -d pocketgophers.com/exploring-alternatives-with-go-run
-```
-
-Run the examples with:
-
-```
-go run main.go messy.go |tee messy.txt
-```
-
-and
-
-```
-go run main.go clean.go |tee clean.txt
-```
-
-then compare the results with:
-
-```
-benchstat messy.txt clean.txt
-```
+The tool used to build this tutorial has not yet been released.
