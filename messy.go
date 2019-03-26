@@ -1,3 +1,5 @@
+// +build messy
+
 package main
 
 import (

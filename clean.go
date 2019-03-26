@@ -1,3 +1,5 @@
+// +build clean
+
 package main
 
 import (
